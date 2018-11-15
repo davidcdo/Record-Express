@@ -1,17 +1,23 @@
 package cs371m.dcd954.recordexpress;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+    final int REQUEST_PERMISSION_CODE = 1000;
 
     private ActionBar actionBar;
     private BottomNavigationView navigationView;
@@ -67,6 +73,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (checkPermissionFromDevice()) {
+
+        } else {
+            request_permission();
+        }
 
         actionBar = getSupportActionBar();
         //actionBar.setIcon(R.drawable.ic_insert_emoticon_black_24dp);
@@ -135,5 +147,43 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean checkPermissionFromDevice() {
+        int write_external_storage_result = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int read_external_storage_result = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE);
+        int record_audio_result = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO);
+        return write_external_storage_result == PackageManager.PERMISSION_GRANTED
+                && record_audio_result == PackageManager.PERMISSION_GRANTED
+                && read_external_storage_result == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void request_permission() {
+        ActivityCompat.requestPermissions(this, new String[] {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+        }, REQUEST_PERMISSION_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_PERMISSION_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this,
+                            "Permission granted", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this,
+                            "Permission denied", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            break;
+        }
     }
 }

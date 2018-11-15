@@ -32,4 +32,5 @@ dependencies {
 
     /* Added dependencies */
     implementation 'com.android.support:design:28.0.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 }

@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
@@ -48,7 +49,7 @@ public class PlayFrag extends Fragment {
     /* Key Data Structures */
     private ListView listView;
     private SwipeRefreshLayout swipeLayout;
-    private MediaPlayer mp;
+    private MediaPlayer mp = null;
     private SongAdaptor theAdaptor;
     private ImageButton playButton, backButton, forwardButton;
     private TextView currentText, nextText, timePlayed, timeRemained;
@@ -61,13 +62,16 @@ public class PlayFrag extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /*
         if (checkPermissionFromDevice()) {
 
         } else {
             request_permission();
         }
+        */
     }
 
+    /*
     private boolean checkPermissionFromDevice() {
         int read_external_storage_result = ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -96,6 +100,7 @@ public class PlayFrag extends Fragment {
             break;
         }
     }
+    */
 
     @Nullable
     @Override
@@ -138,7 +143,9 @@ public class PlayFrag extends Fragment {
     private void initResources() {
         /* Initialize values */
         track = 0;
-        mp = new MediaPlayer();
+        if (mp == null) {
+            mp = new MediaPlayer();
+        }
 
         /* All IDs for changing the image button */
         clickPlay = new ClickPlay();
@@ -269,17 +276,20 @@ public class PlayFrag extends Fragment {
 
     }
 
-    /*
     @Override
     public void onStop() {
         super.onStop();
-        mp.release(); // Releases the media player
+        if (mp != null) {
+            mp.stop();
+            mp.reset();
+        }
     }
-    */
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mp.release(); // Releases the media player
     }
+
+
 }

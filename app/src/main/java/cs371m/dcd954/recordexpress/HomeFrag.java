@@ -63,13 +63,16 @@ public class HomeFrag extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /*
         if (checkPermissionFromDevice()) {
 
         } else {
             request_permission();
         }
+        */
     }
 
+    /*
     private boolean checkPermissionFromDevice() {
         int write_external_storage_result = ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -102,6 +105,8 @@ public class HomeFrag extends Fragment {
             break;
         }
     }
+    */
+
 
     @Nullable
     @Override
