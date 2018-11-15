@@ -211,9 +211,7 @@ public class PlayFrag extends Fragment {
 
     /* Helper method to play songs */
     public void playSongs(int position) {
-        if (position >= files.length - 1) {
-            track = position % files.length;
-        }
+        track = (position + files.length) % files.length;
 
         /* If media player is in usage, clears it for another song */
         if (mp != null) {
@@ -244,12 +242,16 @@ public class PlayFrag extends Fragment {
 
     /* Helper method to update the texts and controls whether or not a song should loop */
     public void updateText() {
+        /*
         int result;
         if (track == (files.length - 1)) {
             result = 0;
         } else {
             result = track + 1;
         }
+        */
+
+        int result = (track + 1) % files.length;
 
         currentText.setText(files[track].getName());
         nextText.setText(files[result].getName());

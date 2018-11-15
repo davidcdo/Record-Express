@@ -72,7 +72,7 @@ public class SeekBarHandler {
         }
         */
 
-        if (mp.isPlaying()) {
+        //if (mp.isPlaying()) {
             seekBar.setProgress(mp.getCurrentPosition());
 
             timePlayed.setText(timeConvert(mp.getCurrentPosition()));
@@ -86,7 +86,7 @@ public class SeekBarHandler {
                 }
             };
             handler.postDelayed(rateLimitRequest, rateLimitMillis);
-        }
+       //}
     }
 
     /* Returns a String of 'MM:SS' using a long millisecond variable */
