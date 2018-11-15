@@ -1,6 +1,7 @@
 package cs371m.dcd954.recordexpress;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.net.PasswordAuthentication;
 import java.util.UUID;
 
@@ -41,8 +43,13 @@ public class HomeFrag extends Fragment {
     protected Button start;
     protected Button pause;
 
+    protected boolean saved = false;
     protected long resumeTime;
-    protected String savePath = "";
+    protected String savePath = null;
+    protected File currentDir;
+
+    protected boolean returnStatus;
+    protected String returnString;
 
     final int REQUEST_PERMISSION_CODE = 1000;
 
@@ -102,6 +109,21 @@ public class HomeFrag extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         //return super.onCreateView(inflater, container, savedInstanceState);
+
+        /*
+        File folder = new File(Environment.getExternalStorageDirectory() + "/Record_Express");
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        */
+
+        File root = Environment.getExternalStorageDirectory();
+        // Toast.makeText(getActivity(), root.toString(), Toast.LENGTH_SHORT).show();
+        currentDir = new File(root.getAbsolutePath() + "/Record_Express");
+        if (!currentDir.exists()) {
+            currentDir.mkdir();
+        }
+
         homeView = inflater.inflate(R.layout.home_layout, container, false);
 
         progressBar = homeView.findViewById(R.id.progressBar);
@@ -114,33 +136,32 @@ public class HomeFrag extends Fragment {
 
         progressBar.setVisibility(View.INVISIBLE);
 
+        resetCorrectButtons();
+
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mr != null) {
-                    try {
-                        mr.stop();
-                    } catch (Exception e) {
-                        Log.d("XXX", "onClick reset, stopping recorder failed");
-                    } finally {
-                        mr.release();
-                        mr = null;
-                    }
-                }
-
-                progressTime.stop();
-                progressTime.setBase(SystemClock.elapsedRealtime());
-                resumeTime = 0;
-                pause.setEnabled(false);
-                start.setEnabled(true);
-                progressBar.setVisibility(View.INVISIBLE);
+                resetFrag();
             }
         });
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*
+                File a = new File(savePath);
+                File b = new File(currentDir, "IGotMyName.mp3");
+                a.renameTo(b);
+                */
 
+                saved = true;
+
+                Intent settingsMenuIntent = new Intent(getActivity(), SaveOption.class);
+                Bundle myExtras = new Bundle();
+                myExtras.putString("currentPath", savePath);
+                settingsMenuIntent.putExtras(myExtras);
+                final int result = 1;
+                startActivityForResult(settingsMenuIntent, result);
             }
         });
 
@@ -163,6 +184,7 @@ public class HomeFrag extends Fragment {
                 progressTime.start();
                 start.setEnabled(false);
                 pause.setEnabled(true);
+                save.setEnabled(true);
                 progressBar.setVisibility(View.VISIBLE);
             }
         });
@@ -184,10 +206,62 @@ public class HomeFrag extends Fragment {
         return homeView;
     }
 
+    /*
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Bundle extras = data.getExtras();
+        if (extras != null) {
+            returnStatus = extras.getBoolean("a");
+            if (returnStatus) {
+                returnString = extras.getString("b");
+                returnString += ".mp3";
+
+                //Toast.makeText(getActivity(), savePath.toString(), Toast.LENGTH_SHORT).show();
+                //Log.d("XXX", savePath.toString());
+                //saved = true;
+
+                changeFileName();
+
+                Toast.makeText(getActivity(),
+                        "File successfully saved as " + returnString,
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getActivity(),
+                        "Canceled, discarding current file...",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        //resetFrag();
+    }
+    */
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        resetFrag();
+    }
+
+    private void resetCorrectButtons() {
+        pause.setEnabled(false);
+        save.setEnabled(false);
+        start.setEnabled(true);
+    }
+
     private void onRecord(String a) {
         if (startTag == a) {
+            /*
+            String folder_main = "RecordExpress";
+            File f = new File(Environment.getExternalStorageDirectory(), folder_main);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
+            */
+
             savePath = Environment.getExternalStorageDirectory().getAbsolutePath()
-                    + "/" + UUID.randomUUID().toString() + "_record_express.mp3";
+                    + "/Record_Express/" + UUID.randomUUID().toString() + ".mp3";
 
             Toast.makeText(getActivity(), savePath.toString(), Toast.LENGTH_SHORT).show();
 
@@ -224,5 +298,35 @@ public class HomeFrag extends Fragment {
         mr.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mr.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mr.setOutputFile(savePath);
+    }
+
+    private void resetFrag() {
+        if (mr != null) {
+            try {
+                mr.stop();
+            } catch (Exception e) {
+                Log.d("XXX", "onClick reset, stopping recorder failed");
+            } finally {
+                mr.release();
+                mr = null;
+            }
+        }
+
+        progressTime.stop();
+        progressTime.setBase(SystemClock.elapsedRealtime());
+        resumeTime = 0;
+        pause.setEnabled(false);
+        start.setEnabled(true);
+        progressBar.setVisibility(View.INVISIBLE);
+
+        if (savePath != null && !saved) {
+            File a = new File(savePath);
+            a.delete();
+        }
+
+        savePath = null;
+        saved = false;
+
+        resetCorrectButtons();
     }
 }
