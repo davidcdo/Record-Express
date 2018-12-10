@@ -62,16 +62,6 @@ public class SeekBarHandler {
 
     /* Loop sequence to constantly update the SeekBar every rateLimitMillis seconds */
     public void reposition() {
-        /*
-        if (mp.isPlaying()) {
-            seekBar.setProgress(mp.getCurrentPosition());
-
-            timePlayed.setText(timeConvert(mp.getCurrentPosition()));
-            timeRemained.setText(timeConvert(mp.getDuration()
-                    - mp.getCurrentPosition()));
-        }
-        */
-
         if (mp.isPlaying()) {
             seekBar.setProgress(mp.getCurrentPosition());
 
@@ -85,7 +75,6 @@ public class SeekBarHandler {
                     reposition();
                 }
             };
-            //handler.postDelayed(rateLimitRequest, rateLimitMillis);
         }
         handler.postDelayed(rateLimitRequest, rateLimitMillis);
     }

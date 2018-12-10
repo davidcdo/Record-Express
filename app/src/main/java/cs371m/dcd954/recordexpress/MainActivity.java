@@ -81,15 +81,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         actionBar = getSupportActionBar();
-        //actionBar.setIcon(R.drawable.ic_insert_emoticon_black_24dp);
 
         navigationView = (BottomNavigationView) findViewById(R.id.navigation);
         navigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigationView.getMenu().getItem(0).setChecked(true);
         // Create all fragments up front, but only display one at a time
-        homeFragment = new HomeFrag();
-        playFragment = new PlayFrag();
-        editFragment = new EditFrag();
+        homeFragment = HomeFrag.newInstance();
+        playFragment = PlayFrag.newInstance();
+        editFragment = EditFrag.newInstance();
         // Tell the fragment manager about all fragments and that all fragments
         // are overlayed on the frame
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -134,14 +133,6 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         switch (id) {
-            case R.id.setting:
-                /*
-                if( dynamicFragment != null ) {
-                    DynamicList dynamicList = (DynamicList) dynamicFragment;
-                    dynamicList.clear();
-                }
-                break;
-                */
             case R.id.exit:
                 finish();
         }

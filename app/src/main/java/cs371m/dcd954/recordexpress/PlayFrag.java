@@ -34,8 +34,6 @@ public class PlayFrag extends Fragment {
         void transform(ImageButton imageButton);
     }
 
-    final int REQUEST_PERMISSION_CODE = 1000;
-
     private View playView;
     private File[] files;
 
@@ -58,49 +56,15 @@ public class PlayFrag extends Fragment {
     /* Key Resources */
     private int track;
 
+    public static PlayFrag newInstance() {
+        PlayFrag h = new PlayFrag();
+        return h;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        /*
-        if (checkPermissionFromDevice()) {
-
-        } else {
-            request_permission();
-        }
-        */
     }
-
-    /*
-    private boolean checkPermissionFromDevice() {
-        int read_external_storage_result = ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.READ_EXTERNAL_STORAGE);
-        return read_external_storage_result == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void request_permission() {
-        ActivityCompat.requestPermissions(getActivity(), new String[] {
-                Manifest.permission.READ_EXTERNAL_STORAGE
-        }, REQUEST_PERMISSION_CODE);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-       //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQUEST_PERMISSION_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getActivity(),
-                            "Permission granted", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity(),
-                            "Permission denied", Toast.LENGTH_SHORT).show();
-                }
-            }
-            break;
-        }
-    }
-    */
 
     @Nullable
     @Override
@@ -249,14 +213,6 @@ public class PlayFrag extends Fragment {
 
     /* Helper method to update the texts and controls whether or not a song should loop */
     public void updateText() {
-        /*
-        int result;
-        if (track == (files.length - 1)) {
-            result = 0;
-        } else {
-            result = track + 1;
-        }
-        */
 
         int result = (track + 1) % files.length;
 

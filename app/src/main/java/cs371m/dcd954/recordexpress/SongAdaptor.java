@@ -13,29 +13,16 @@ import android.widget.TextView;
 
 public class SongAdaptor extends ArrayAdapter<SongDict> {
 
-    /*
-    static class ViewHolder {
-        TextView theTextView;
-
-        public ViewHolder(View v) {
-            theTextView = (TextView) v.findViewById(R.id.textID);
-        }
-    }
-    */
-
     private LayoutInflater theInflater = null;
-    //private String[] list_names;
 
     public SongAdaptor(Context context) {
         super(context, R.layout.song_row);
-        //this.list_names = list_names;
         theInflater = LayoutInflater.from(getContext());
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        //return super.getView(position, convertView, parent);
         if (convertView == null) {
             convertView = theInflater.inflate(R.layout.song_row, parent, false);
         }
@@ -50,26 +37,4 @@ public class SongAdaptor extends ArrayAdapter<SongDict> {
 
         return theView;
     }
-
-
-    /*
-    @NonNull
-    @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        //return super.getView(position, convertView, parent);
-        SongAdaptor.ViewHolder vh = null;
-        if (convertView == null) {
-            convertView = theInflater.inflate(R.layout.song_row, parent, false);
-            vh = new SongAdaptor.ViewHolder(convertView);
-            convertView.setTag(vh);
-        } else {
-            vh = (SongAdaptor.ViewHolder) convertView.getTag();
-        }
-
-        SongDict songDict = getItem(position);
-        vh.theTextView.setText(songDict.name);
-
-        return convertView;
-    }
-    */
 }

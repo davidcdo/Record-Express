@@ -23,6 +23,15 @@
         <activity android:name=".SaveOption"
             android:label="Save Menu Option"
             />
+        <activity android:name=".EditOption"
+            android:label="Edit Menu Option"
+            />
+        <activity android:name=".RenameOption"
+            android:label="Rename Menu Option"
+            />
+        <activity android:name=".ExtendingOption"
+            android:label="Extending Menu Option"
+            />
     </application>
 
 </manifest>

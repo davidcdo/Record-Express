@@ -1,38 +1,43 @@
 package cs371m.dcd954.recordexpress;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.coremedia.iso.boxes.Container;
+import com.googlecode.mp4parser.authoring.Movie;
+import com.googlecode.mp4parser.authoring.Track;
+import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
+import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
+import com.googlecode.mp4parser.authoring.tracks.AppendTrack;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
-public class HomeFrag extends Fragment {
+public class ExtendingOption extends AppCompatActivity {
     private final String startTag = "START";
     private final String resumeTag = "RESUME";
     private final String pauseTag = "PAUSE";
 
     protected MediaRecorder mr = null;
-
-    protected View homeView;
 
     protected ProgressBar progressBar;
     protected Chronometer progressTime;
@@ -45,38 +50,29 @@ public class HomeFrag extends Fragment {
     protected boolean saved = false;
     protected long resumeTime;
     protected String savePath = null;
-    protected File currentDir;
 
-    public static HomeFrag newInstance() {
-        HomeFrag h = new HomeFrag();
-        return h;
-    }
+    private boolean front;
+    private String currentPath;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
+        setContentView(R.layout.home_layout);
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        File root = Environment.getExternalStorageDirectory();
-        currentDir = new File(root.getAbsolutePath() + "/Record_Express");
-        if (!currentDir.exists()) {
-            currentDir.mkdir();
+        Intent activityThatCalled = getIntent();
+        Bundle callingBundle = activityThatCalled.getExtras();
+        if(callingBundle != null) {
+            front = callingBundle.getBoolean("toEdit");
+            currentPath = callingBundle.getString("currentPath");
         }
 
-        homeView = inflater.inflate(R.layout.home_layout, container, false);
-
-        progressBar = homeView.findViewById(R.id.progressBar);
-        progressTime = homeView.findViewById(R.id.progressTime);
-        recordingStatus = homeView.findViewById(R.id.recordingStatus);
-        reset = homeView.findViewById(R.id.reset);
-        save = homeView.findViewById(R.id.save);
-        start = homeView.findViewById(R.id.start);
-        pause = homeView.findViewById(R.id.pause);
+        progressBar = findViewById(R.id.progressBar);
+        progressTime = findViewById(R.id.progressTime);
+        recordingStatus = findViewById(R.id.recordingStatus);
+        reset = findViewById(R.id.reset);
+        save = findViewById(R.id.save);
+        start = findViewById(R.id.start);
+        pause = findViewById(R.id.pause);
 
         progressBar.setVisibility(View.INVISIBLE);
 
@@ -92,14 +88,20 @@ public class HomeFrag extends Fragment {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saved = true;
+                if (savePath != null) {
+                    mr.stop();
+                    mr.release();
+                    mr = null;
 
-                Intent settingsMenuIntent = new Intent(getActivity(), SaveOption.class);
-                Bundle myExtras = new Bundle();
-                myExtras.putString("currentPath", savePath);
-                settingsMenuIntent.putExtras(myExtras);
-                final int result = 1;
-                startActivityForResult(settingsMenuIntent, result);
+                    if (front) {
+                        mergeAudio(front, savePath, currentPath, currentPath);
+                    } else {
+                        mergeAudio(front, currentPath, savePath, currentPath);
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "Did not save??", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -110,12 +112,12 @@ public class HomeFrag extends Fragment {
                     progressTime.setBase(progressTime.getBase()
                             + SystemClock.elapsedRealtime() - resumeTime);
                     onRecord(resumeTag);
-                    Toast.makeText(getActivity(),
+                    Toast.makeText(getApplicationContext(),
                             "Resuming current recording", Toast.LENGTH_SHORT).show();
                 } else {
                     progressTime.setBase(SystemClock.elapsedRealtime());
                     onRecord(startTag);
-                    Toast.makeText(getActivity(),
+                    Toast.makeText(getApplicationContext(),
                             "Starting new recording", Toast.LENGTH_SHORT).show();
                 }
 
@@ -136,19 +138,12 @@ public class HomeFrag extends Fragment {
                 start.setEnabled(true);
                 progressBar.setVisibility(View.INVISIBLE);
                 onRecord(pauseTag);
-                Toast.makeText(getActivity(),
+                Toast.makeText(getApplicationContext(),
                         "Pausing current recording", Toast.LENGTH_SHORT).show();
             }
         });
-
-        return homeView;
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        resetFrag();
-    }
 
     private void resetCorrectButtons() {
         pause.setEnabled(false);
@@ -161,7 +156,7 @@ public class HomeFrag extends Fragment {
             savePath = Environment.getExternalStorageDirectory().getAbsolutePath()
                     + "/Record_Express/" + UUID.randomUUID().toString() + ".mp3";
 
-            Toast.makeText(getActivity(), savePath.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), savePath.toString(), Toast.LENGTH_SHORT).show();
 
             setMediaRecorder();
 
@@ -185,7 +180,7 @@ public class HomeFrag extends Fragment {
             }
         } else {
             Log.d("XXX", "Error at onRecord");
-            Toast.makeText(getActivity(),
+            Toast.makeText(getApplicationContext(),
                     "Error with MediaRecorder", Toast.LENGTH_SHORT).show();
         }
     }
@@ -226,5 +221,65 @@ public class HomeFrag extends Fragment {
         saved = false;
 
         resetCorrectButtons();
+    }
+
+    private void mergeAudio(boolean front, String first, String second, String output) {
+        try {
+            String[] videoUris = new String[]{first, second};
+
+            List<Movie> inMovies = new ArrayList<Movie>();
+            for (String videoUri : videoUris) {
+                inMovies.add(MovieCreator.build(videoUri));
+            }
+
+            List<Track> audioTracks = new LinkedList<Track>();
+
+            for (Movie m : inMovies) {
+                for (Track t : m.getTracks()) {
+                    if (t.getHandler().equals("soun")) {
+                        audioTracks.add(t);
+                    }
+                }
+            }
+
+            Movie result = new Movie();
+
+            if (!audioTracks.isEmpty()) {
+                result.addTrack(new AppendTrack(audioTracks.toArray(new Track[audioTracks.size()])));
+            }
+
+            Container out = new DefaultMp4Builder().build(result);
+
+            FileChannel fc = new RandomAccessFile(output, "rw").getChannel();
+            out.writeContainer(fc);
+            fc.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (front) {
+            deleter(first);
+        } else {
+            deleter(second);
+        }
+
+        saved = true;
+        finish();
+    }
+
+    private void deleter(String a) {
+        File deleting = new File(a);
+        if (deleting.exists()) {
+            deleting.delete();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        finish();
     }
 }

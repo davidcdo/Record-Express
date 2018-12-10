@@ -12,8 +12,7 @@ import android.widget.Toast;
 
 import java.io.File;
 
-public class SaveOption extends AppCompatActivity {
-
+public class RenameOption extends AppCompatActivity {
     private Button cancel, ok;
     private EditText entered;
 
@@ -31,7 +30,6 @@ public class SaveOption extends AppCompatActivity {
             filePath = callingBundle.getString("currentPath");
         }
 
-
         initWidgets();
     }
 
@@ -43,11 +41,8 @@ public class SaveOption extends AppCompatActivity {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File a = new File(filePath);
-                a.delete();
-
                 Toast.makeText(getApplicationContext(),
-                        "Cancelled, discarding file...",
+                        "Returning, no changes were made...",
                         Toast.LENGTH_SHORT).show();
 
                 finish();
@@ -58,9 +53,7 @@ public class SaveOption extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (entered.getText().toString().length() > 0) {
-                    //status = true;
                     enteredString = entered.getText().toString() + ".mp4";
-                    //passBackResults();
 
                     File root = Environment.getExternalStorageDirectory();
                     File currentDir = new File(root.getAbsolutePath() +

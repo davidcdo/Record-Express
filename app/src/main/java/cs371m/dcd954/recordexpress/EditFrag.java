@@ -1,5 +1,6 @@
 package cs371m.dcd954.recordexpress;
 
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
@@ -7,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +39,11 @@ public class EditFrag extends Fragment {
     /* Key Resources */
     private int track = -1;
 
+    public static EditFrag newInstance() {
+        EditFrag h = new EditFrag();
+        return h;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +52,6 @@ public class EditFrag extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //return super.onCreateView(inflater, container, savedInstanceState);
         editView = inflater.inflate(R.layout.edit_layout, container, false);
 
         getFiles();
@@ -58,7 +64,7 @@ public class EditFrag extends Fragment {
     }
 
     private void getFiles() {
-        String path = Environment.getExternalStorageDirectory().toString()+ "/Record_Express";
+        String path = Environment.getExternalStorageDirectory().toString() + "/Record_Express";
         File directory = new File(path);
         files = directory.listFiles();
     }
@@ -102,9 +108,22 @@ public class EditFrag extends Fragment {
             @Override
             public void onClick(View v) {
                 if (track != -1) {
-
+                    Intent settingsMenuIntent = new Intent(editView.getContext(), EditOption.class);
+                    Bundle myExtras = new Bundle();
+                    myExtras.putString("currentPath", files[track].toString());
+                    settingsMenuIntent.putExtras(myExtras);
+                    final int result = 1;
+                    startActivityForResult(settingsMenuIntent, result);
+                } else {
+                    Toast.makeText(editView.getContext(),
+                            "Please select a file!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 }
