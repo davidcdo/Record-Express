@@ -31,7 +31,6 @@ public class SaveOption extends AppCompatActivity {
             filePath = callingBundle.getString("currentPath");
         }
 
-
         initWidgets();
     }
 
@@ -58,10 +57,7 @@ public class SaveOption extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (entered.getText().toString().length() > 0) {
-                    //status = true;
                     enteredString = entered.getText().toString() + ".mp4";
-                    //passBackResults();
-
                     File root = Environment.getExternalStorageDirectory();
                     File currentDir = new File(root.getAbsolutePath() +
                             "/Record_Express");
@@ -82,5 +78,14 @@ public class SaveOption extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        File a = new File(filePath);
+        a.delete();
+        finish();
     }
 }

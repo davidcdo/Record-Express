@@ -26,7 +26,6 @@ public class SongAdaptor extends ArrayAdapter<SongDict> {
         if (convertView == null) {
             convertView = theInflater.inflate(R.layout.song_row, parent, false);
         }
-
         return bindView(position, convertView);
     }
 
@@ -34,7 +33,6 @@ public class SongAdaptor extends ArrayAdapter<SongDict> {
         SongDict song = getItem(position);
         TextView textView = theView.findViewById(R.id.textID);
         textView.setText(song.name);
-
         return theView;
     }
 }

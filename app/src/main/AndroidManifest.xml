@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,15 +23,19 @@
         </activity>
         <activity android:name=".SaveOption"
             android:label="Save Menu Option"
+            android:screenOrientation="portrait"
             />
         <activity android:name=".EditOption"
             android:label="Edit Menu Option"
+            android:screenOrientation="portrait"
             />
         <activity android:name=".RenameOption"
             android:label="Rename Menu Option"
+            android:screenOrientation="portrait"
             />
         <activity android:name=".ExtendingOption"
             android:label="Extending Menu Option"
+            android:screenOrientation="portrait"
             />
     </application>
 
